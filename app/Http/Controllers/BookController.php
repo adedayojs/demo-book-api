@@ -3,18 +3,21 @@
 namespace App\Http\Controllers;
 
 use App\Book;
+use Illuminate\Validation\Rule;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Validator;
 
 class BookController extends Controller
 {
 
-    private function validator($data)
+    private function validator($data, $id = null)
     {
+        // dd($id);
         return Validator::make($data, [
-            'name' => 'required|unique:books|max:255',
-            'isbn' => 'required|unique:books',
+            'name' => ['required', 'max:255', Rule::unique('books')->ignore($id)],
+            'isbn' => ['required', Rule::unique('books')->ignore($id)],
             'authors' => 'required',
             'country' => 'required',
             'number_of_pages' => 'required|integer',
@@ -59,7 +62,15 @@ class BookController extends Controller
         //  Proceed to save if object is valid
         $book = new Book($request->all());
         $book->save();
-        return $book;
+
+        //  Assemble new book data with other requirements
+        $data = [
+            "status_code" => 200,
+            "status" => "success",
+            "data" => $book
+        ];
+
+        return $data;
     }
 
     /**
@@ -68,9 +79,19 @@ class BookController extends Controller
      * @param  \App\Book  $book
      * @return \Illuminate\Http\Response
      */
-    public function show(Book $book)
+    public function show($id)
     {
         //
+        $book = Book::find($id);
+
+        //  Assemble book data if present with other requirements
+        $data = [
+            "status_code" => 200,
+            "status" => "success",
+            "data" => $book
+        ];
+
+        return $data;
     }
 
     /**
@@ -83,6 +104,27 @@ class BookController extends Controller
     public function update(Request $request, Book $book)
     {
         //
+        //  Validate That the request incoming is posses Valid data
+        $validate_object = $this->validator($request->all(), $book->id);
+
+        //  If object is invalid return the errors
+        if ($validate_object->fails()) {
+            return response($validate_object->errors(), 400);
+        }
+
+
+        // Update Our Book
+        $book->update($request->all());
+
+        //  Assemble our data with other requirements
+        $data = [
+            "status_code" => 200,
+            "status" => "success",
+            "message" => 'The Book ' . $book->name . ' was updated successfully',
+            "data" => $book
+        ];
+
+        return $data;
     }
 
     /**
@@ -94,6 +136,16 @@ class BookController extends Controller
     public function destroy(Book $book)
     {
         //
+        $book_name = $book->name;
+
+        Book::destroy($book->id);
+
+        return array(
+            "status_code" => 204,
+            "status" => "success",
+            "message" => 'The Book ' . $book_name . ' was deleted successfully',
+            "data" => []
+        );
     }
 
     /*
@@ -126,7 +178,7 @@ class BookController extends Controller
                 "number_of_pages" => $book["numberOfPages"],
                 "publisher" => $book["publisher"],
                 "country" => $book["country"],
-                "release_date" => $book["released"]
+                "release_date" => Carbon::createFromDate($book["released"])->format('Y-m-d')
             ];
         });
 
