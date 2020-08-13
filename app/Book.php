@@ -33,5 +33,6 @@ class Book extends Model
      */
     protected $casts = [
         'authors' => 'array',
+        'release_date' => 'datetime:Y-m-d'
     ];
 }
