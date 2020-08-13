@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Book;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Validator;
 
@@ -176,7 +177,7 @@ class BookController extends Controller
                 "number_of_pages" => $book["numberOfPages"],
                 "publisher" => $book["publisher"],
                 "country" => $book["country"],
-                "release_date" => $book["released"]
+                "release_date" => Carbon::createFromDate( $book["released"])->format('Y-m-d')
             ];
         });
 
