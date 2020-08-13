@@ -17,6 +17,12 @@ class BookController extends Controller
     public function index()
     {
         //
+        $data = array(
+            "status_code" => 200,
+            "status" => "success",
+            "data" => Book::all()
+        );
+        return $data;
     }
 
     /**

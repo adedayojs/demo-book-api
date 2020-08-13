@@ -19,6 +19,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-
-Route::resource('book', "BookController");
+Route::prefix('v1')->group(function () {
+    Route::resource('book', "BookController");
+});
 Route::get('external-books', "BookController@external");
