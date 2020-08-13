@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Book;
+use Illuminate\Validation\Rule;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Http;
@@ -11,11 +12,12 @@ use Illuminate\Support\Facades\Validator;
 class BookController extends Controller
 {
 
-    private function validator($data)
+    private function validator($data, $id = null)
     {
+        // dd($id);
         return Validator::make($data, [
-            'name' => 'required|unique:books|max:255',
-            'isbn' => 'required|unique:books',
+            'name' => ['required', 'max:255', Rule::unique('books')->ignore($id)],
+            'isbn' => ['required', Rule::unique('books')->ignore($id)],
             'authors' => 'required',
             'country' => 'required',
             'number_of_pages' => 'required|integer',
@@ -102,9 +104,8 @@ class BookController extends Controller
     public function update(Request $request, Book $book)
     {
         //
-        dd($book);
         //  Validate That the request incoming is posses Valid data
-        $validate_object = $this->validator($request->all());
+        $validate_object = $this->validator($request->all(), $book->id);
 
         //  If object is invalid return the errors
         if ($validate_object->fails()) {
@@ -119,7 +120,7 @@ class BookController extends Controller
         $data = [
             "status_code" => 200,
             "status" => "success",
-            "message" => 'The Book ' . $book->name . ' was deleted successfully',
+            "message" => 'The Book ' . $book->name . ' was updated successfully',
             "data" => $book
         ];
 
@@ -177,7 +178,7 @@ class BookController extends Controller
                 "number_of_pages" => $book["numberOfPages"],
                 "publisher" => $book["publisher"],
                 "country" => $book["country"],
-                "release_date" => Carbon::createFromDate( $book["released"])->format('Y-m-d')
+                "release_date" => Carbon::createFromDate($book["released"])->format('Y-m-d')
             ];
         });
 
