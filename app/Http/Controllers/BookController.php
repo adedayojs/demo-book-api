@@ -59,7 +59,15 @@ class BookController extends Controller
         //  Proceed to save if object is valid
         $book = new Book($request->all());
         $book->save();
-        return $book;
+
+        //  Assemble new book data with other requirements
+        $data = [
+            "status_code" => 200,
+            "status" => "success",
+            "data" => $book
+        ];
+
+        return $data;
     }
 
     /**
@@ -83,6 +91,28 @@ class BookController extends Controller
     public function update(Request $request, Book $book)
     {
         //
+        dd($book);
+        //  Validate That the request incoming is posses Valid data
+        $validate_object = $this->validator($request->all());
+
+        //  If object is invalid return the errors
+        if ($validate_object->fails()) {
+            return response($validate_object->errors(), 400);
+        }
+
+
+        // Update Our Book
+        $book->update($request->all());
+
+        //  Assemble our data with other requirements
+        $data = [
+            "status_code" => 200,
+            "status" => "success",
+            "message" => 'The Book ' . $book->name . ' was deleted successfully',
+            "data" => $book
+        ];
+
+        return $data;
     }
 
     /**
@@ -101,7 +131,7 @@ class BookController extends Controller
         return array(
             "status_code" => 204,
             "status" => "success",
-            "message" => 'The Book '. $book_name .' was deleted successfully',
+            "message" => 'The Book ' . $book_name . ' was deleted successfully',
             "data" => []
         );
     }
