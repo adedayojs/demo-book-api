@@ -4,9 +4,24 @@ namespace App\Http\Controllers;
 
 use App\Book;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Validator;
 
 class BookController extends Controller
 {
+
+    private function validator($data)
+    {
+        return Validator::make($data, [
+            'name' => 'required|unique:books|max:255',
+            'isbn' => 'required|unique:books',
+            'authors' => 'required',
+            'country' => 'required',
+            'number_of_pages' => 'required|integer',
+            'publisher' => 'required',
+            'release_date' => 'required|date_format:Y-m-d',
+        ]);
+    }
     /**
      * Display a listing of the resource.
      *
@@ -15,6 +30,12 @@ class BookController extends Controller
     public function index()
     {
         //
+        $data = array(
+            "status_code" => 200,
+            "status" => "success",
+            "data" => Book::all()
+        );
+        return $data;
     }
 
     /**
@@ -25,7 +46,20 @@ class BookController extends Controller
      */
     public function store(Request $request)
     {
-        //
+
+
+        //  Validate That the request incoming is posses Valid data
+        $validate_object = $this->validator($request->all());
+
+        //  If object is invalid return the errors
+        if ($validate_object->fails()) {
+            return response($validate_object->errors(), 400);
+        }
+
+        //  Proceed to save if object is valid
+        $book = new Book($request->all());
+        $book->save();
+        return $book;
     }
 
     /**
@@ -60,5 +94,50 @@ class BookController extends Controller
     public function destroy(Book $book)
     {
         //
+    }
+
+    /*
+    *   Handles Request to external resources
+    *
+    */
+    public function external()
+    {
+        //  Check query string for present parameters
+
+        //  Assign them to variables
+
+        //  Make external request with query data
+        $response = Http::get('https://www.anapioficeandfire.com/api/books');
+
+        if ($response->failed()) {
+            return $response->json(["message" => "An error occured. Please try again later"], 500);
+        }
+
+        //  Store fire and ice api response
+        $unfiltered = $response->json();
+
+        //  Filter the response to specification
+
+        $filtered = collect($unfiltered)->map(function ($book) {
+            return [
+                "name" => $book['name'],
+                "isbn" => $book['isbn'],
+                "authors" => $book['authors'],
+                "number_of_pages" => $book["numberOfPages"],
+                "publisher" => $book["publisher"],
+                "country" => $book["country"],
+                "release_date" => $book["released"]
+            ];
+        });
+
+        //  Assemble filterd data with other requirements
+        $data = [
+            "status_code" => 200,
+            "status" => "success",
+            "data" => $filtered
+        ];
+
+        // Send Filtered data
+        return $data;
     }
 }
