@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Book;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
+
 
 class BookController extends Controller
 {
@@ -60,5 +62,50 @@ class BookController extends Controller
     public function destroy(Book $book)
     {
         //
+    }
+
+    /*
+    *   Handles Request to external resources
+    *
+    */
+    public function external()
+    {
+        //  Check query string for present parameters
+
+        //  Assign them to variables
+
+        //  Make external request with query data
+        $response = Http::get('https://www.anapioficeandfire.com/api/books');
+
+        if ($response->failed()) {
+            return $response->json(["message" => "An error occured. Please try again later"], 500);
+        }
+
+        //  Store fire and ice api response
+        $unfiltered = $response->json();
+
+        //  Filter the response to specification
+
+        $filtered = collect($unfiltered)->map(function ($book) {
+            return [
+                "name" => $book['name'],
+                "isbn" => $book['isbn'],
+                "authors" => $book['authors'],
+                "number_of_pages" => $book["numberOfPages"],
+                "publisher" => $book["publisher"],
+                "country" => $book["country"],
+                "release_date" => $book["released"]
+            ];
+        });
+
+        //  Assemble filterd data with other requirements
+        $data = [
+            "status_code" => 200,
+            "status" => "success",
+            "data" => $filtered
+        ];
+
+        // Send Filtered data
+        return $data;
     }
 }
