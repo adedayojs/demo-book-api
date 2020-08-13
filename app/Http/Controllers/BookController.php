@@ -5,10 +5,23 @@ namespace App\Http\Controllers;
 use App\Book;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
-
+use Illuminate\Support\Facades\Validator;
 
 class BookController extends Controller
 {
+
+    private function validator($data)
+    {
+        return Validator::make($data, [
+            'name' => 'required|unique:books|max:255',
+            'isbn' => 'required|unique:books',
+            'authors' => 'required',
+            'country' => 'required',
+            'number_of_pages' => 'required|integer',
+            'publisher' => 'required',
+            'release_date' => 'required|date_format:Y-m-d',
+        ]);
+    }
     /**
      * Display a listing of the resource.
      *
@@ -33,7 +46,20 @@ class BookController extends Controller
      */
     public function store(Request $request)
     {
-        //
+
+
+        //  Validate That the request incoming is posses Valid data
+        $validate_object = $this->validator($request->all());
+
+        //  If object is invalid return the errors
+        if ($validate_object->fails()) {
+            return response($validate_object->errors(), 400);
+        }
+
+        //  Proceed to save if object is valid
+        $book = new Book($request->all());
+        $book->save();
+        return $book;
     }
 
     /**
