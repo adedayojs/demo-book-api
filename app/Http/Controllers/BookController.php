@@ -76,9 +76,19 @@ class BookController extends Controller
      * @param  \App\Book  $book
      * @return \Illuminate\Http\Response
      */
-    public function show(Book $book)
+    public function show($id)
     {
         //
+        $book = Book::find($id);
+
+        //  Assemble book data if present with other requirements
+        $data = [
+            "status_code" => 200,
+            "status" => "success",
+            "data" => $book
+        ];
+
+        return $data;
     }
 
     /**
