@@ -94,6 +94,16 @@ class BookController extends Controller
     public function destroy(Book $book)
     {
         //
+        $book_name = $book->name;
+
+        Book::destroy($book->id);
+
+        return array(
+            "status_code" => 204,
+            "status" => "success",
+            "message" => 'The Book '. $book_name .' was deleted successfully',
+            "data" => []
+        );
     }
 
     /*
