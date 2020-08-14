@@ -68,4 +68,9 @@ The following endpoint has been made available for consumption 😋😋
     DELETE  api/v1/book/:id
 ```
 
-Please Note: Testing is in progress
+## Testing
+**Update:** To run your test run the command
+
+```bash
+        php artisan test
+```
