@@ -140,11 +140,14 @@ class BookController extends Controller
 
         Book::destroy($book->id);
 
-        return array(
-            "status_code" => 204,
-            "status" => "success",
-            "message" => 'The Book ' . $book_name . ' was deleted successfully',
-            "data" => []
+        return response(
+            array(
+                "status_code" => 204,
+                "status" => "success",
+                "message" => 'The Book ' . $book_name . ' was deleted successfully',
+                "data" => []
+            ),
+            204
         );
     }
 
