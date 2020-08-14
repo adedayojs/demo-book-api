@@ -70,7 +70,7 @@ class BookController extends Controller
             "data" => $book
         ];
 
-        return $data;
+        return response($data, 201);
     }
 
     /**
