@@ -65,7 +65,7 @@ class BookController extends Controller
 
         //  Assemble new book data with other requirements
         $data = [
-            "status_code" => 200,
+            "status_code" => 201,
             "status" => "success",
             "data" => $book
         ];

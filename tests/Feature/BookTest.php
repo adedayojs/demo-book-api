@@ -58,14 +58,19 @@ class BookTest extends TestCase
             "release_date" => "2009-03-05"
         );
         $response_structure = [
-            'id',
-            'name',
-            'isbn',
-            'authors',
-            'country',
-            'number_of_pages',
-            'publisher',
-            'release_date',
+
+            'status_code',
+            'status',
+            'data' => [
+                'id',
+                'name',
+                'isbn',
+                'authors',
+                'country',
+                'number_of_pages',
+                'publisher',
+                'release_date',
+            ],
         ];
         $this->json('POST', 'api/v1/book', $payload)
             ->assertStatus(201)->assertJsonStructure($response_structure);
