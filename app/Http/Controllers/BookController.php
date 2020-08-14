@@ -65,12 +65,12 @@ class BookController extends Controller
 
         //  Assemble new book data with other requirements
         $data = [
-            "status_code" => 200,
+            "status_code" => 201,
             "status" => "success",
             "data" => $book
         ];
 
-        return $data;
+        return response($data, 201);
     }
 
     /**
@@ -140,11 +140,14 @@ class BookController extends Controller
 
         Book::destroy($book->id);
 
-        return array(
-            "status_code" => 204,
-            "status" => "success",
-            "message" => 'The Book ' . $book_name . ' was deleted successfully',
-            "data" => []
+        return response(
+            array(
+                "status_code" => 204,
+                "status" => "success",
+                "message" => 'The Book ' . $book_name . ' was deleted successfully',
+                "data" => []
+            ),
+            204
         );
     }
 
