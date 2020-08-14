@@ -2,12 +2,44 @@
 
 namespace Tests\Feature;
 
+use App\Book;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
 class BookTest extends TestCase
 {
+    protected $response_structure = [
+
+        'status_code',
+        'status',
+        'data' => [
+            'id',
+            'name',
+            'isbn',
+            'authors',
+            'country',
+            'number_of_pages',
+            'publisher',
+            'release_date',
+        ],
+    ];
+    protected $response_structure2 = [
+
+        'status_code',
+        'status',
+        'data' => [
+            [
+                'name',
+                'isbn',
+                'authors',
+                'country',
+                'number_of_pages',
+                'publisher',
+                'release_date',
+            ]
+        ],
+    ];
     /**
      * A basic feature test .
      *
@@ -57,23 +89,9 @@ class BookTest extends TestCase
             "publisher" => "Adedayojs",
             "release_date" => "2009-03-05"
         );
-        $response_structure = [
 
-            'status_code',
-            'status',
-            'data' => [
-                'id',
-                'name',
-                'isbn',
-                'authors',
-                'country',
-                'number_of_pages',
-                'publisher',
-                'release_date',
-            ],
-        ];
         $this->json('POST', 'api/v1/book', $payload)
-            ->assertStatus(201)->assertJsonStructure($response_structure);
+            ->assertStatus(201)->assertJsonStructure($this->response_structure);
     }
 
 
@@ -95,7 +113,7 @@ class BookTest extends TestCase
             "number_of_pages" => 345,
             "publisher" => "Adedayojs",
         );
-        $this->postJson('api/v1/', $payload)
+        $this->postJson('api/v1/book', $payload)
             ->assertStatus(400);
     }
 
@@ -110,7 +128,23 @@ class BookTest extends TestCase
     public function should_return_external_books()
     {
         //  Should Return status 200
-        $this->postJson('api/external-books')
-            ->assertStatus(200);
+        $this->get('api/external-books')
+            ->assertStatus(200)->assertJsonStructure($this->response_structure2);
+    }
+
+    /**
+     *  GET /api/external-books
+     *
+     *
+     * @return void
+     * @test
+     */
+    public function should_delete_books()
+    {
+        $book = factory(Book::class)->create();
+
+        //  Should Return status 200
+        $this->json('DELETE', '/api/v1/book/' . $book->id)
+            ->assertStatus(204);
     }
 }
