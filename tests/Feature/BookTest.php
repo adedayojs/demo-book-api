@@ -133,7 +133,7 @@ class BookTest extends TestCase
     }
 
     /**
-     *  GET /api/external-books
+     *  DELETE /api/books/:id
      *
      *
      * @return void
@@ -146,5 +146,25 @@ class BookTest extends TestCase
         //  Should Return status 200
         $this->json('DELETE', '/api/v1/book/' . $book->id)
             ->assertStatus(204);
+    }
+
+
+
+    /**
+     *  PATCH /api/books/:id
+     *
+     *
+     * @return void
+     * @test
+     */
+    public function should_update_books()
+    {
+        $book = factory(Book::class)->create()->toArray();
+        //  Edit same model
+        $book['isbn'] = 'edited';
+
+        //  Should Return status 200
+        $this->json('PATCH', '/api/v1/book/' . $book['id'], $book)
+            ->assertStatus(200)->assertJsonStructure($this->response_structure);
     }
 }
